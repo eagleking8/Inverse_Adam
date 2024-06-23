@@ -33,7 +33,7 @@ if __name__ == '__main__':
     if optimizer_name == "Adam":
         optimizer = optim.Adam(net.parameters(), lr=0.001, weight_decay=0)
     elif optimizer_name == "InverseAdam":
-        optimizer = InverseAdam(params=net.parameters(), lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8, alpha=1.0)
+        optimizer = InverseAdam(params=net.parameters(), lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8, alpha=0.01)
 
 
     # 实例化损失函数
