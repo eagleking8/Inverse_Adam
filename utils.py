@@ -52,5 +52,5 @@ def test(net, testloader, device = "cuda"):
             output = net(data)  # 前向传播
             _, predicted = torch.max(output.data, 1)  # 取预测值
             total += label.size(0)
-            correct += (predicted == label).sum().item()  # 累加正确预测的数量
+            correct += predicted.eq(label).sum().item()  # 累加正确预测的数量
     return 100 * correct / total # 返回准确率

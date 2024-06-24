@@ -3,9 +3,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
-import torchvision.models as models
 from utils import load_data,train,test
 from InverseAdam import InverseAdam
+from model import resnet
 
 
 if __name__ == '__main__':
@@ -21,12 +21,13 @@ if __name__ == '__main__':
     trainloader, testloader = load_data()
 
     # 实例化ResNet-18模型
-    net = models.resnet18(pretrained=False, num_classes=10).to(device)
+    net = resnet.ResNet18(num_classes=10).to(device)
+
     if device == 'cuda' and torch.cuda.device_count() > 1:
         net = torch.nn.DataParallel(net)
         cudnn.benchmark = True
 
-    optimizer_name = "InverseAdam"
+    optimizer_name = "Adam"
     optimizer = ""
 
     # 选择并实例化优化器
@@ -57,11 +58,11 @@ if __name__ == '__main__':
     # print(f"adai_time:{adam_time}")
 
     # 保存准确率到文件
-    with open('InverseAdam_accuracy_200_epochs_lr=0.001_with_scheduler_data_augmentation.pkl', 'wb') as file:
+    with open('Adam_accuracy_200_epochs_lr=0.001.pkl', 'wb') as file:
         pickle.dump(accuracies, file)
 
     # 保存损失到文件
-    with open('InverseAdam_loss_200_epochs_lr=0.001_with_scheduler_data_augmentation.pkl', 'wb') as file:
+    with open('Adam_loss_200_epochs_lr=0.001.pkl', 'wb') as file:
         pickle.dump(losses, file)
 
     # torch.save(net, 'adai_model')
