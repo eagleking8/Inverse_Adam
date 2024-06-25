@@ -17,14 +17,21 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)
 
-    # 加载数据
-    trainloader, testloader = load_data()
+    dataset_name = "cifar10"
 
-    # 实例化ResNet-18模型
-    net = resnet.ResNet18(num_classes=10).to(device)
+    # 加载数据
+    trainloader, testloader = load_data(dataset_name)
+
+    model_name = "resnet18"
+    model = ""
+
+    if model_name == "resnet18":
+        model = resnet.ResNet18(num_classes=10).to(device)
+    elif model_name == "resnet34":
+        model = resnet.ResNet34(num_classes=100).to(device)
 
     if device == 'cuda' and torch.cuda.device_count() > 1:
-        net = torch.nn.DataParallel(net)
+        model = torch.nn.DataParallel(model)
         cudnn.benchmark = True
 
     optimizer_name = "Adam"
@@ -32,9 +39,11 @@ if __name__ == '__main__':
 
     # 选择并实例化优化器
     if optimizer_name == "Adam":
-        optimizer = optim.Adam(net.parameters(), lr=0.001, weight_decay=0)
+        optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0)
     elif optimizer_name == "InverseAdam":
-        optimizer = InverseAdam(params=net.parameters(), lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8, alpha=0.01)
+        optimizer = InverseAdam(params=model.parameters(), lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8, alpha=0.01)
+    elif optimizer_name == "SGDM":
+        optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=0, nesterov=False)
 
 
     # 实例化损失函数
@@ -48,8 +57,8 @@ if __name__ == '__main__':
     # start_time = time.time()
     #进行训练和测试
     for epoch in range(epoch_num):
-        loss = train(net, trainloader, optimizer, criterion, device=device)
-        accuracy = test(net, testloader, device=device)
+        loss = train(model, trainloader, optimizer, criterion, device=device)
+        accuracy = test(model, testloader, device=device)
         losses.append(loss)
         accuracies.append(accuracy)
         scheduler.step()

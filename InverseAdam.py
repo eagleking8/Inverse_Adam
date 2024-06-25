@@ -23,12 +23,11 @@ class InverseAdam(Optimizer):
                     state['step'] = 0
                     state['m'] = torch.zeros_like(p.data)
                     state['v'] = torch.zeros_like(p.data)
-                    state['inverse_adam_rate'] = 0.0
 
                 m, v = state['m'], state['v']
                 beta1, beta2 = group['beta1'], group['beta2']
                 lr, epsilon, alpha = group['lr'], group['epsilon'], group['alpha']
-                state['inverse_adam_rate'] = max(0.0, 1.0 - state['step'] * alpha)
+                inverse_adam_rate = max(0.0, 1.0 - state['step'] * alpha)
 
                 state['step'] += 1
 
@@ -47,6 +46,6 @@ class InverseAdam(Optimizer):
                 adam_update = m_hat / (v_hat.sqrt().add(epsilon))
 
                 # Combined update
-                p.data.add_(-lr * ((1.0 - state['inverse_adam_rate']) * adam_update + state['inverse_adam_rate'] * inverse_update))
+                p.data.add_(-lr * ((1.0 - inverse_adam_rate) * adam_update + inverse_adam_rate * inverse_update))
 
         return loss
