@@ -2,13 +2,15 @@ import torch
 from torch.optim.optimizer import Optimizer
 
 class InverseAdam(Optimizer):
-    def __init__(self, params, lr=1e-3, beta1=0.9, beta2=0.999, epsilon=1e-8, alpha=0.01):
-        defaults = dict(lr=lr, beta1=beta1, beta2=beta2, epsilon=epsilon, alpha=alpha)
+    def __init__(self, params, lr=1e-3, beta1=0.9, beta2=0.999, epsilon=1e-8, switch_rate=0.01):
+        defaults = dict(lr=lr, beta1=beta1, beta2=beta2, epsilon=epsilon, switch_rate=switch_rate)
         super(InverseAdam, self).__init__(params, defaults)
 
     @torch.no_grad()
     def step(self, closure=None):
+
         loss = None
+
         if closure is not None:
             loss = closure()
 
@@ -26,8 +28,8 @@ class InverseAdam(Optimizer):
 
                 m, v = state['m'], state['v']
                 beta1, beta2 = group['beta1'], group['beta2']
-                lr, epsilon, alpha = group['lr'], group['epsilon'], group['alpha']
-                inverse_adam_rate = max(0.0, 1.0 - state['step'] * alpha)
+                lr, epsilon, switch_rate = group['lr'], group['epsilon'], group['switch_rate']
+                inverse_adam_rate = max(0.0, 1.0 - state['step'] * switch_rate)
 
                 state['step'] += 1
 

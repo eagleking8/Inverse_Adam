@@ -41,9 +41,9 @@ if __name__ == '__main__':
     if optimizer_name == "Adam":
         optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0)
     elif optimizer_name == "InverseAdam":
-        optimizer = InverseAdam(params=model.parameters(), lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8, alpha=0.01)
+        optimizer = InverseAdam(params=model.parameters(), lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8, switch_rate=0.01)
     elif optimizer_name == "SGDM":
-        optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=0, nesterov=False)
+        optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4, nesterov=False)
 
 
     # 实例化损失函数
