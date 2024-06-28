@@ -34,20 +34,22 @@ if __name__ == '__main__':
         model = torch.nn.DataParallel(model)
         cudnn.benchmark = True
 
-    optimizer_name = "Adam"
+    optimizer_name = "InverseAdam"
     optimizer = ""
 
     # 选择并实例化优化器
     if optimizer_name == "Adam":
         optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0)
     elif optimizer_name == "InverseAdam":
-        optimizer = InverseAdam(params=model.parameters(), lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8, switch_rate=0.01)
+        optimizer = InverseAdam(params=model.parameters(), lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8,
+                                switch_rate=0.0001, weight_decay=5e-4)
     elif optimizer_name == "SGDM":
         optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4, nesterov=False)
 
-
     # 实例化损失函数
     criterion = nn.CrossEntropyLoss(reduction='mean')
+
+    print(f"Dataset:{dataset_name} Model: {model_name} Optimizer:{optimizer_name}")
 
     # 加入学习率调度
     def lambda_lr(epoch): return 0.1 ** (epoch // 80)
@@ -67,11 +69,11 @@ if __name__ == '__main__':
     # print(f"adai_time:{adam_time}")
 
     # 保存准确率到文件
-    with open('Adam_accuracy_200_epochs_lr=0.001.pkl', 'wb') as file:
+    with open('InverseAdam_accuracy_200_epochs_lr=0.01_switchrate=0.0001_weight_decay=5e-4_resnet18_cifar10.pkl', 'wb') as file:
         pickle.dump(accuracies, file)
 
     # 保存损失到文件
-    with open('Adam_loss_200_epochs_lr=0.001.pkl', 'wb') as file:
+    with open('InverseAdam_loss_200_epochs_lr=0.01_switchrate=0.0001_weight_decay=5e-4_resnet18_cifar10.pkl', 'wb') as file:
         pickle.dump(losses, file)
 
     # torch.save(net, 'adai_model')

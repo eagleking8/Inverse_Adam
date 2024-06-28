@@ -2,8 +2,9 @@ import torch
 from torch.optim.optimizer import Optimizer
 
 class InverseAdam(Optimizer):
-    def __init__(self, params, lr=1e-3, beta1=0.9, beta2=0.999, epsilon=1e-8, switch_rate=0.01):
-        defaults = dict(lr=lr, beta1=beta1, beta2=beta2, epsilon=epsilon, switch_rate=switch_rate)
+    def __init__(self, params, lr=1e-3, beta1=0.9, beta2=0.999, epsilon=1e-8, switch_rate=0.01, weight_decay=0):
+        defaults = dict(lr=lr, beta1=beta1, beta2=beta2, epsilon=epsilon, switch_rate=switch_rate,
+                        weight_decay=weight_decay)
         super(InverseAdam, self).__init__(params, defaults)
 
     @torch.no_grad()
@@ -28,10 +29,14 @@ class InverseAdam(Optimizer):
 
                 m, v = state['m'], state['v']
                 beta1, beta2 = group['beta1'], group['beta2']
-                lr, epsilon, switch_rate = group['lr'], group['epsilon'], group['switch_rate']
+                lr, epsilon, switch_rate, weight_decay = group['lr'], group['epsilon'], group['switch_rate'], group['weight_decay']
                 inverse_adam_rate = max(0.0, 1.0 - state['step'] * switch_rate)
 
                 state['step'] += 1
+
+                # Apply weight decay
+                if weight_decay != 0:
+                    grad = grad.add(p.data, alpha=weight_decay)
 
                 # Adam's moment estimates
                 m.mul_(beta1).add_((1.0 - beta1) * grad)
