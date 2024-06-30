@@ -34,10 +34,6 @@ class InverseAdam(Optimizer):
 
                 state['step'] += 1
 
-                # Apply weight decay
-                if weight_decay != 0:
-                    grad = grad.add(p.data, alpha=weight_decay)
-
                 # Adam's moment estimates
                 m.mul_(beta1).add_((1.0 - beta1) * grad)
                 v.mul_(beta2).addcmul_(grad, grad, value=1 - beta2)
@@ -51,6 +47,10 @@ class InverseAdam(Optimizer):
 
                 # Adam part
                 adam_update = m_hat / (v_hat.sqrt().add(epsilon))
+
+                # Combined update with weight decay
+                if weight_decay != 0:
+                    p.data.add_(-weight_decay * lr, p.data)
 
                 # Combined update
                 p.data.add_(-lr * ((1.0 - inverse_adam_rate) * adam_update + inverse_adam_rate * inverse_update))
