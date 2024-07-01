@@ -6,10 +6,10 @@ import torch.backends.cudnn as cudnn
 from utils import load_data,train,test
 from InverseAdam import InverseAdam
 from model import resnet
-
+import warmup_cosine_scheduler
 
 if __name__ == '__main__':
-    epoch_num = 200
+    epoch_num = 2
     accuracies = []
     losses = []
 
@@ -52,8 +52,9 @@ if __name__ == '__main__':
     print(f"Dataset:{dataset_name} Model: {model_name} Optimizer:{optimizer_name}")
 
     # 加入学习率调度
-    def lambda_lr(epoch): return 0.1 ** (epoch // 80)
-    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_lr)
+    # def lambda_lr(epoch): return 0.1 ** (epoch // 80)
+    # scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_lr)
+    scheduler = warmup_cosine_scheduler.WarmUpCosineAnnealingLR(optimizer=optimizer, warmup_epochs=(epoch_num/10), max_epochs=epoch_num, min_lr=3e-5)
 
     # 记录训练时间
     # start_time = time.time()
