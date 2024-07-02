@@ -32,6 +32,10 @@ class InverseAdam(Optimizer):
                 lr, epsilon, switch_rate, weight_decay = group['lr'], group['epsilon'], group['switch_rate'], group['weight_decay']
                 inverse_adam_rate = max(0.0, 1.0 - state['step'] * switch_rate)
 
+                # Apply L2 normalization
+                if weight_decay != 0:
+                    grad = grad.add(p.grad.data * weight_decay)
+
                 state['step'] += 1
 
                 # Adam's moment estimates
@@ -48,9 +52,9 @@ class InverseAdam(Optimizer):
                 # Adam part
                 adam_update = m_hat / (v_hat.sqrt().add(epsilon))
 
-                # Combined update with weight decay
-                if weight_decay != 0:
-                    p.data.add_(-weight_decay * lr, p.data)
+                # # Combined update with weight decay
+                # if weight_decay != 0:
+                #     p.data.add_(-weight_decay * lr, p.data)
 
                 # Combined update
                 p.data.add_(-lr * ((1.0 - inverse_adam_rate) * adam_update + inverse_adam_rate * inverse_update))
