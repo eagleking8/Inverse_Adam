@@ -76,5 +76,3 @@ if __name__ == '__main__':
     # 保存损失到文件
     with open('InverseAdam_loss_200_epochs_lr=0.01_switchrate=0.0001_weight_decay=5e-4_resnet18_cifar10.pkl', 'wb') as file:
         pickle.dump(losses, file)
-
-    # torch.save(net, 'adai_model')
