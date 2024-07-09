@@ -53,9 +53,6 @@ ax.spines['right'].set_visible(False)
 plt.xlabel('learning rate(1e-1)')    # x轴标签
 plt.ylabel('average accuracy(%)')     # y轴标签
 
-# plt.vlines(l2_coefficient_list, 1e-6, accuracy_list, linestyle="dashed")
-# plt.hlines(accuracy_list, 0, l2_coefficient_list, linestyle="dashed")
-
 plt.plot(switch_rate_list, accuracy_list, linewidth=1, linestyle="solid", color='red', marker="o", markersize=2, markeredgecolor="b")
 plt.plot(vanilla_inverse_adam_x, vanilla_inverse_adam_accuracy, linewidth=1, linestyle="solid", label="optimal inverse adam", color='blue')
 
