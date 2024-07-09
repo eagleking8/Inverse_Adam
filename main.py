@@ -1,4 +1,6 @@
 import pickle
+import time
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -9,7 +11,7 @@ from model import resnet
 import warmup_cosine_scheduler
 
 if __name__ == '__main__':
-    epoch_num = 2
+    epoch_num = 200
     accuracies = []
     losses = []
 
@@ -41,8 +43,8 @@ if __name__ == '__main__':
     if optimizer_name == "Adam":
         optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0)
     elif optimizer_name == "InverseAdam":
-        optimizer = InverseAdam(params=model.parameters(), lr=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8,
-                                switch_rate=0.0001, weight_decay=5e-4)
+        optimizer = InverseAdam(params=model.parameters(), lr=1.01e-2, beta1=0.9, beta2=0.999, epsilon=1e-8,
+                                switch_rate=8e-5, weight_decay=2e-9)
     elif optimizer_name == "SGDM":
         optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4, nesterov=False)
 
@@ -52,12 +54,17 @@ if __name__ == '__main__':
     print(f"Dataset:{dataset_name} Model: {model_name} Optimizer:{optimizer_name}")
 
     # 加入学习率调度
+    # def lambda_lr(epoch):
+    #     if epoch < epoch_num / 10:
+    #         return (epoch + 1) / epoch_num * 10
+    #     else:
+    #         return 0.1 ** (epoch // 80)
     def lambda_lr(epoch): return 0.1 ** (epoch // 80)
     scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_lr)
     # scheduler = warmup_cosine_scheduler.WarmUpCosineAnnealingLR(optimizer=optimizer, warmup_epochs=(epoch_num/10), max_epochs=epoch_num, min_lr=3e-5)
 
     # 记录训练时间
-    # start_time = time.time()
+    start_time = time.time()
     #进行训练和测试
     for epoch in range(epoch_num):
         loss = train(model, trainloader, optimizer, criterion, device=device)
@@ -66,13 +73,13 @@ if __name__ == '__main__':
         accuracies.append(accuracy)
         scheduler.step()
         print(f"Epoch {epoch + 1}: Loss: {loss}, Accuracy:{accuracy}")
-    # adam_time = time.time() - start_time
-    # print(f"adai_time:{adam_time}")
+    training_time = time.time() - start_time
+    print(f"training time:{training_time}")
 
     # 保存准确率到文件
-    with open('InverseAdam_accuracy_200_epochs_lr=0.01_switchrate=0.0001_weight_decay=5e-4_resnet18_cifar10.pkl', 'wb') as file:
+    with open('InverseAdam_accuracy_200_epochs_lr=1.01e-2_switchrate=8e-5_wd=2e9_resnet18_cifar10.pkl', 'wb') as file:
         pickle.dump(accuracies, file)
 
     # 保存损失到文件
-    with open('InverseAdam_loss_200_epochs_lr=0.01_switchrate=0.0001_weight_decay=5e-4_resnet18_cifar10.pkl', 'wb') as file:
+    with open('InverseAdam_loss_200_epochs_lr=3e-2_switchrate=8e-5_resnet18_cifar10.pkl', 'wb') as file:
         pickle.dump(losses, file)

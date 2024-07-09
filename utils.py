@@ -3,6 +3,8 @@ import torchvision
 import torchvision.transforms as transforms
 
 '''数据集准备'''
+
+
 def load_data(dataset_name):
     trainloader = ""
     testloader = ""
@@ -52,9 +54,12 @@ def load_data(dataset_name):
 
     return trainloader, testloader
 
+
 '''定义和训练测试函数'''
+
+
 # 训练函数
-def train(net, trainloader, optimizer, criterion, device = "cuda"):
+def train(net, trainloader, optimizer, criterion, device="cuda"):
     net.train()
     running_loss = 0.0
     for data, label in trainloader:
@@ -65,10 +70,11 @@ def train(net, trainloader, optimizer, criterion, device = "cuda"):
         loss.backward()  # 反向传播
         optimizer.step()  # 更新参数
         running_loss += loss.item()  # 累加损失
-    return running_loss / len(trainloader) # 返回这个epoch的平均损失
+    return running_loss / len(trainloader)  # 返回这个epoch的平均损失
+
 
 # 测试函数
-def test(net, testloader, device = "cuda"):
+def test(net, testloader, device="cuda"):
     net.eval()
     correct = 0
     total = 0
@@ -79,4 +85,11 @@ def test(net, testloader, device = "cuda"):
             _, predicted = torch.max(output.data, 1)  # 取预测值
             total += label.size(0)
             correct += predicted.eq(label).sum().item()  # 累加正确预测的数量
-    return 100 * correct / total # 返回准确率
+    return 100 * correct / total  # 返回准确率
+
+
+def average_accuracy(accuracys, epoch_num):
+    total = 0
+    for accuracy in accuracys[-epoch_num:]:
+        total += accuracy
+    return total / (epoch_num + 0.0)
