@@ -1,10 +1,10 @@
 import torch
 import torchvision
 import torchvision.transforms as transforms
+import os, random
+import numpy as np
 
 '''数据集准备'''
-
-
 def load_data(dataset_name):
     trainloader = ""
     testloader = ""
@@ -93,3 +93,13 @@ def average_accuracy(accuracys, epoch_num):
     for accuracy in accuracys[-epoch_num:]:
         total += accuracy
     return total / (epoch_num + 0.0)
+
+def seed_torch(seed=42):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed) # if you are using multi-GPU.
+    # torch.backends.cudnn.benchmark = True
+    # torch.backends.cudnn.deterministic = True
