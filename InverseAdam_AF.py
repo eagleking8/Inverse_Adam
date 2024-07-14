@@ -1,11 +1,11 @@
 import torch
 from torch.optim.optimizer import Optimizer
 
-class InverseAdam(Optimizer):
+class InverseAdam_AF(Optimizer):
     def __init__(self, params, lr=1e-3, beta1=0.9, beta2=0.999, epsilon=1e-8, switch_rate=0.01, weight_decay=0):
         defaults = dict(lr=lr, beta1=beta1, beta2=beta2, epsilon=epsilon, switch_rate=switch_rate,
                         weight_decay=weight_decay)
-        super(InverseAdam, self).__init__(params, defaults)
+        super(InverseAdam_AF, self).__init__(params, defaults)
 
     @torch.no_grad()
     def step(self, closure=None):
@@ -30,7 +30,7 @@ class InverseAdam(Optimizer):
                 m, v = state['m'], state['v']
                 beta1, beta2 = group['beta1'], group['beta2']
                 lr, epsilon, switch_rate, weight_decay = group['lr'], group['epsilon'], group['switch_rate'], group['weight_decay']
-                inverse_adam_rate = max(0.0, 1.0 - state['step'] * switch_rate)
+                adam_rate = max(0.0, 1.0 - state['step'] * switch_rate)
 
                 # # Apply L2 normalization
                 # if weight_decay != 0:
@@ -57,6 +57,6 @@ class InverseAdam(Optimizer):
                     p.data.add_(-weight_decay * lr, p.data)
 
                 # Combined update
-                p.data.add_(-lr * ((1.0 - inverse_adam_rate) * adam_update + inverse_adam_rate * inverse_update))
+                p.data.add_(-lr * ((1.0 - adam_rate) * adam_update + adam_rate * inverse_update))
 
         return loss

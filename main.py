@@ -4,13 +4,15 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
-from utils import load_data, train, test, seed_torch
-from InverseAdam import InverseAdam
+from torch.optim.lr_scheduler import CosineAnnealingLR
+import utils
+from InverseAdam_IF import InverseAdam_IF
 from model import resnet
-import warmup_cosine_scheduler
+from WarmUpCosineAnnealingLR import WarmUpCosineAnnealingLR
 
 if __name__ == '__main__':
-    seed_torch(42)
+    utils.seed_torch(42)
+
     epoch_num = 200
     accuracies = []
     losses = []
@@ -23,31 +25,17 @@ if __name__ == '__main__':
     dataset_name = "cifar10"
 
     # 加载数据
-    trainloader, testloader = load_data(dataset_name)
+    trainloader, testloader = utils.load_data(dataset_name)
 
     model_name = "resnet18"
-    model = ""
-
-    if model_name == "resnet18":
-        model = resnet.ResNet18(num_classes=10).to(device)
-    elif model_name == "resnet34":
-        model = resnet.ResNet34(num_classes=100).to(device)
+    model = utils.select_model(model_name, device)
 
     if device == 'cuda' and torch.cuda.device_count() > 1:
         model = torch.nn.DataParallel(model)
         cudnn.benchmark = True
 
-    optimizer_name = "InverseAdam"
-    optimizer = ""
-
-    # 选择并实例化优化器
-    if optimizer_name == "Adam":
-        optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=0)
-    elif optimizer_name == "InverseAdam":
-        optimizer = InverseAdam(params=model.parameters(), lr=lr, beta1=0.9, beta2=0.999, epsilon=1e-8,
-                                switch_rate=8e-5, weight_decay=1e-2)
-    elif optimizer_name == "SGDM":
-        optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4, nesterov=False)
+    optimizer_name = "InverseAdam_AF"
+    optimizer = utils.select_optimizer(optimizer_name, model, lr)
 
     # 实例化损失函数
     criterion = nn.CrossEntropyLoss(reduction='mean')
@@ -62,15 +50,15 @@ if __name__ == '__main__':
     #         return 0.1 ** (epoch // 80)
     # def lambda_lr(epoch): return 0.1 ** (epoch // 80)
     # scheduler = optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_lr)
-    # scheduler = CosineAnnealingLR(optimizer, T_max=epoch_num, eta_min=lr/1000, verbose=True)
-    scheduler = warmup_cosine_scheduler.WarmUpCosineAnnealingLR(optimizer=optimizer, warmup_epochs=(epoch_num/10), max_epochs=epoch_num, min_lr=lr/1000)
+    scheduler = CosineAnnealingLR(optimizer, T_max=epoch_num, eta_min=lr/1000, verbose=True)
+    # scheduler = WarmUpCosineAnnealingLR(optimizer=optimizer, warmup_epochs=(epoch_num/10), max_epochs=epoch_num, min_lr=lr/100)
 
     # 记录训练时间
     # start_time = time.time()
     #进行训练和测试
     for epoch in range(epoch_num):
-        loss = train(model, trainloader, optimizer, criterion, device=device)
-        accuracy = test(model, testloader, device=device)
+        loss = utils.train(model, trainloader, optimizer, criterion, device=device)
+        accuracy = utils.test(model, testloader, device=device)
         losses.append(loss)
         accuracies.append(accuracy)
         scheduler.step()
@@ -79,9 +67,9 @@ if __name__ == '__main__':
     # print(f"training time:{training_time}")
 
     # 保存准确率到文件
-    with open('InverseAdam_accuracy_200_epochs_lr=1.01e-2_switchrate=8e-5_wd=1e-2_warm_up_cosine1000_resnet18_cifar10.pkl', 'wb') as file:
+    with open('InverseAdam_AF_accuracy_200_epochs_lr=1e-2_switchrate=1e-3_wd=1e-2_cosine1000_resnet18_cifar10.pkl', 'wb') as file:
         pickle.dump(accuracies, file)
 
     # 保存损失到文件
-    with open('InverseAdam_loss_200_epochs_lr=1.01e-2_switchrate=8e-5_wd=1e-2_warm_up_cosine1000_resnet18_cifar10.pkl', 'wb') as file:
+    with open('InverseAdam_AF_loss_200_epochs_lr=1e-2_switchrate=1e-3_wd=1e-2_cosine1000_resnet18_cifar10.pkl', 'wb') as file:
         pickle.dump(losses, file)
