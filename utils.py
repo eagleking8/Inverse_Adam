@@ -111,7 +111,7 @@ def seed_torch(seed=42):
 
 def select_model(model_name, device):
     if model_name == "resnet18":
-        return resnet.ResNet18(num_classes=10).to(device)
+        return resnet.ResNet18(num_classes=100).to(device)
     elif model_name == "resnet34":
         return resnet.ResNet34(num_classes=100).to(device)
 
@@ -123,7 +123,7 @@ def select_optimizer(optimizer_name, model, lr):
                               switch_rate=8e-5, weight_decay=1e-2)
     elif optimizer_name == "InverseAdam_AF":
         return InverseAdam_AF(params=model.parameters(), lr=lr, beta1=0.9, beta2=0.999, epsilon=1e-8,
-                              switch_rate=1e-3, weight_decay=1e-2)
+                              switch_rate=1e-4, weight_decay=0)
     elif optimizer_name == "SGDM":
        return optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4, nesterov=False)
     elif optimizer_name == "AdamW":

@@ -46,11 +46,13 @@ class InverseAdam_IF(Optimizer):
                 m_hat = m.div(1.0 - beta1**state['step'])
                 v_hat = v.div(1.0 - beta2**state['step'])
 
+                ada_norm = v_hat.sqrt().add(epsilon)
+
                 # Inverse Adam part
-                inverse_update = m_hat * (v_hat.sqrt().add(epsilon))
+                inverse_update = m_hat * ada_norm
 
                 # Adam part
-                adam_update = m_hat / (v_hat.sqrt().add(epsilon))
+                adam_update = m_hat / ada_norm
 
                 # Apply weight decay
                 if weight_decay != 0:
