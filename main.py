@@ -16,7 +16,7 @@ if __name__ == '__main__':
     epoch_num = 200
     accuracies = []
     losses = []
-    lr = 1e-1
+    lr = 1e-2
 
     # 检查是否有可用的GPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         model = torch.nn.DataParallel(model)
         cudnn.benchmark = True
 
-    optimizer_name = "SGDM"
+    optimizer_name = "InverseAdam_AF"
     optimizer = utils.select_optimizer(optimizer_name, model, lr)
 
     # 实例化损失函数
@@ -67,9 +67,9 @@ if __name__ == '__main__':
     # print(f"training time:{training_time}")
 
     # 保存准确率到文件
-    with open('SGDM_accuracy_200_epochs_lr=1e-1_wd=5e-4_cosine1000_resnet18_cifar100.pkl', 'wb') as file:
+    with open('InverseAdam_AF_accuracy_200_epochs_lr=1e-2_sr=1e-6_wd=1e-2_cosine1000_resnet18_cifar100.pkl', 'wb') as file:
         pickle.dump(accuracies, file)
 
     # 保存损失到文件
-    with open('SGDM_loss_200_epochs_lr=1e-1_wd=5e-4_cosine1000_resnet18_cifar100.pkl', 'wb') as file:
+    with open('InverseAdam_AF_loss_200_epochs_lr=1e-2_sr=1e-6_wd=1e-2_cosine1000_resnet18_cifar100.pkl', 'wb') as file:
         pickle.dump(losses, file)

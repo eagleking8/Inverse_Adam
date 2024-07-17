@@ -7,9 +7,12 @@ from torch import optim
 
 from InverseAdam_AF import InverseAdam_AF
 from InverseAdam_IF import InverseAdam_IF
+from AR_InverseAdam import ARInverseAdam
 from model import resnet
 
 '''数据集准备'''
+
+
 def load_data(dataset_name):
     trainloader = ""
     testloader = ""
@@ -99,15 +102,17 @@ def average_accuracy(accuracys, epoch_num):
         total += accuracy
     return total / (epoch_num + 0.0)
 
+
 def seed_torch(seed=42):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed) # if you are using multi-GPU.
+    torch.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
     # torch.backends.cudnn.benchmark = True
     # torch.backends.cudnn.deterministic = True
+
 
 def select_model(model_name, device):
     if model_name == "resnet18":
@@ -115,20 +120,23 @@ def select_model(model_name, device):
     elif model_name == "resnet34":
         return resnet.ResNet34(num_classes=100).to(device)
 
+
 def select_optimizer(optimizer_name, model, lr):
     if optimizer_name == "Adam":
-        return optim.Adam(model.parameters(), betas=(0.9,0.999), eps=1e-8, lr=lr, weight_decay=0)
+        return optim.Adam(model.parameters(), betas=(0.9, 0.999), eps=1e-8, lr=lr, weight_decay=0)
     elif optimizer_name == "InverseAdam_IF":
         return InverseAdam_IF(params=model.parameters(), lr=lr, beta1=0.9, beta2=0.999, epsilon=1e-8,
                               switch_rate=8e-5, weight_decay=1e-2)
     elif optimizer_name == "InverseAdam_AF":
         return InverseAdam_AF(params=model.parameters(), lr=lr, beta1=0.9, beta2=0.999, epsilon=1e-8,
-                              switch_rate=1e-4, weight_decay=0)
+                              switch_rate=5e-6, weight_decay=1e-2)
     elif optimizer_name == "SGDM":
-       return optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4, nesterov=False)
+        return optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4, nesterov=False)
     elif optimizer_name == "AdamW":
-        return optim.AdamW(model.parameters(), betas=(0.9,0.999), eps=1e-8, lr=lr, weight_decay=1e-2)
+        return optim.AdamW(model.parameters(), betas=(0.9, 0.999), eps=1e-8, lr=lr, weight_decay=1e-2)
     elif optimizer_name == "NdamW":
         return optim.NAdam(model.parameters())
     elif optimizer_name == "RdamW":
         return optim.RAdam(model.parameters())
+    elif optimizer_name == "ARInverseAdam":
+        return ARInverseAdam(model.parameters(), lr=lr, switch_rate=1e-6, weight_decay=1e-2, T=200*391)

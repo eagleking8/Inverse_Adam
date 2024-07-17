@@ -59,6 +59,6 @@ class InverseAdam_AF(Optimizer):
                     p.data.add_(-weight_decay * lr, p.data)
 
                 # Combined update
-                p.data.add_(-lr * ((1.0 - adam_rate) * adam_update + adam_rate * inverse_update))
+                p.data.add_(-lr * (adam_rate * adam_update + (1.0 - adam_rate) * inverse_update))
 
         return loss
