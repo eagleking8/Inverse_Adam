@@ -30,7 +30,7 @@ class InverseAdam_AF(Optimizer):
                 m, v = state['m'], state['v']
                 beta1, beta2 = group['beta1'], group['beta2']
                 lr, epsilon, switch_rate, weight_decay = group['lr'], group['epsilon'], group['switch_rate'], group['weight_decay']
-                adam_rate = max(0.0, 1.0 - state['step'] * switch_rate)
+                adam_rate = max(0.8, 1.0 - state['step'] * switch_rate)
 
                 # # Apply L2 normalization
                 # if weight_decay != 0:

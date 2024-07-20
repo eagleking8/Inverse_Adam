@@ -67,9 +67,9 @@ if __name__ == '__main__':
     # print(f"training time:{training_time}")
 
     # 保存准确率到文件
-    with open('InverseAdam_AF_accuracy_200_epochs_lr=1e-2_sr=1e-6_wd=1e-2_cosine1000_resnet18_cifar100.pkl', 'wb') as file:
+    with open('InverseAdam_AF_accuracy_200_epochs_Adam0.8_lr=1e-2_sr=2e-5_wd=1e-2_cosine1000_resnet18_cifar100.pkl', 'wb') as file:
         pickle.dump(accuracies, file)
 
     # 保存损失到文件
-    with open('InverseAdam_AF_loss_200_epochs_lr=1e-2_sr=1e-6_wd=1e-2_cosine1000_resnet18_cifar100.pkl', 'wb') as file:
+    with open('InverseAdam_AF_loss_200_epochs_Adam0.8_lr=1e-2_sr=2e-5_wd=1e-2_cosine1000_resnet18_cifar100.pkl', 'wb') as file:
         pickle.dump(losses, file)

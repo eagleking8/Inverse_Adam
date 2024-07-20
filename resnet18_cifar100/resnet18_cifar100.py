@@ -7,7 +7,7 @@ inverse_adam_if_file = open('./InverseAdam_IF/InverseAdam_IF_accuracy_200_epochs
 inverse_adam_af_file = open('./InverseAdam_AF/InverseAdam_AF_accuracy_200_epochs_lr=1e-2_sr1e-5_wd=1e-2_cosine1000_resnet18_cifar100.pkl', 'rb')
 # adamw_lr1en2_file = open('./AdamW/AdamW_accuracy_200_epochs_lr=1e-2_wd=1e-2_cosine1000_resnet18_cifar100.pkl', 'rb')
 adamw_lr1en3_file = open('./AdamW/AdamW_accuracy_200_epochs_lr=1e-3_wd=1e-2_cosine1000_resnet18_cifar100.pkl', 'rb')
-ar_inverse_adam_file = open('./AR_InverseAdam/ARInverseAdam_accuracy_200_epochs_lr=1e-2_sr=1e-4_wd=1e-2_cosine1000_resnet18_cifar100.pkl', 'rb')
+ar_inverse_adam_file = open('./AR_InverseAdam/ARInverseAdam_IF_accuracy_200_epochs_lr=1e-2_sr=1e-2_wd=1e-2_cosine1000_resnet18_cifar100.pkl', 'rb')
 
 
 # inverse_adam_af_file = open('./inverse_adam_af_lr1e-2_wd1e-2/InverseAdam_AF_accuracy_200_epochs_lr=1e-2_switchrate=8e-5_wd=1e-2_cosine1000_resnet18_cifar10.pkl', 'rb')

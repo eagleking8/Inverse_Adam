@@ -5,6 +5,7 @@ import os, random
 import numpy as np
 from torch import optim
 
+from AdaSGDM import AdaSGDM
 from InverseAdam_AF import InverseAdam_AF
 from InverseAdam_IF import InverseAdam_IF
 from AR_InverseAdam import ARInverseAdam
@@ -129,7 +130,7 @@ def select_optimizer(optimizer_name, model, lr):
                               switch_rate=8e-5, weight_decay=1e-2)
     elif optimizer_name == "InverseAdam_AF":
         return InverseAdam_AF(params=model.parameters(), lr=lr, beta1=0.9, beta2=0.999, epsilon=1e-8,
-                              switch_rate=5e-6, weight_decay=1e-2)
+                              switch_rate=2e-5, weight_decay=1e-2)
     elif optimizer_name == "SGDM":
         return optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4, nesterov=False)
     elif optimizer_name == "AdamW":
@@ -140,3 +141,5 @@ def select_optimizer(optimizer_name, model, lr):
         return optim.RAdam(model.parameters())
     elif optimizer_name == "ARInverseAdam":
         return ARInverseAdam(model.parameters(), lr=lr, switch_rate=1e-6, weight_decay=1e-2, T=200*391)
+    elif optimizer_name == "AdaSGDM":
+        return AdaSGDM(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4)

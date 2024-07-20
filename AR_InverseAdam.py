@@ -71,9 +71,9 @@ class ARInverseAdam(Optimizer):
 
                 # Adjust the ratio based on the sharpness
                 if grad_norm_square >= state['mu_t'] + c_t * math.sqrt(state['sigma_t_square']):
-                    state['adam_ratio'] = max(0.0, state['adam_ratio'] - switch_rate)
-                else:
                     state['adam_ratio'] = min(1.0, state['adam_ratio'] + switch_rate)
+                else:
+                    state['adam_ratio'] = max(0.0, state['adam_ratio'] - switch_rate)
 
                 adam_ratio = state['adam_ratio']
                 inv_ratio = 1.0 - adam_ratio
