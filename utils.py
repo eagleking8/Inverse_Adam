@@ -1,6 +1,7 @@
 import torch
 import torchvision
 import torchvision.transforms as transforms
+import torchvision.datasets as datasets
 import os, random
 import numpy as np
 from torch import optim
@@ -9,7 +10,7 @@ from AdaSGDM import AdaSGDM
 from InverseAdam_AF import InverseAdam_AF
 from InverseAdam_IF import InverseAdam_IF
 from AR_InverseAdam import ARInverseAdam
-from model import resnet
+from model import resnet, vgg
 
 '''数据集准备'''
 
@@ -60,6 +61,16 @@ def load_data(dataset_name):
         # CIFAR-100 测试集
         testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=True, transform=transform_test)
         testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
+    elif dataset_name == "tiny_imagenet":
+        normalize = transforms.Normalize((0.4802, 0.4481, 0.3975), (0.2770, 0.2691, 0.2821))
+        transform_train = transforms.Compose(
+            [transforms.RandomResizedCrop(32), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
+             normalize, ])
+        transform_test = transforms.Compose([transforms.Resize(32), transforms.ToTensor(), normalize, ])
+        trainset = datasets.ImageFolder(root=os.path.join('./data/tiny_imagenet/tiny-imagenet-200', 'train'), transform=transform_train)
+        testset = datasets.ImageFolder(root=os.path.join('./data/tiny_imagenet/tiny-imagenet-200', 'val'), transform=transform_test)
+        trainloader = torch.utils.data.DataLoader(trainset, batch_size=128, shuffle=True, pin_memory=True)
+        testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, pin_memory=True)
 
     return trainloader, testloader
 
@@ -117,26 +128,26 @@ def seed_torch(seed=42):
 
 def select_model(model_name, device):
     if model_name == "resnet18":
-        return resnet.ResNet18(num_classes=100).to(device)
+        return resnet.ResNet18(num_classes=200).to(device)
     elif model_name == "resnet34":
-        return resnet.ResNet34(num_classes=100).to(device)
+        return resnet.ResNet34(num_classes=200).to(device)
+    elif model_name == "vgg16":
+        return vgg.VGG(vgg_name="VGG16", num_classes=100).to(device)
 
 
 def select_optimizer(optimizer_name, model, lr):
     if optimizer_name == "Adam":
         return optim.Adam(model.parameters(), betas=(0.9, 0.999), eps=1e-8, lr=lr, weight_decay=0)
-    elif optimizer_name == "InverseAdam_IF":
+    elif optimizer_name == "InverseAdam":
         return InverseAdam_IF(params=model.parameters(), lr=lr, beta1=0.9, beta2=0.999, epsilon=1e-8,
                               switch_rate=8e-5, weight_decay=0)
     elif optimizer_name == "InverseAdam_AF":
         return InverseAdam_AF(params=model.parameters(), lr=lr, beta1=0.9, beta2=0.999, epsilon=1e-8,
                               switch_rate=2e-5, weight_decay=1e-2)
     elif optimizer_name == "SGDM":
-        return optim.SGD(model.parameters(), lr=lr, momentum=0.0, weight_decay=5e-4, nesterov=False)
+        return optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=5e-4, nesterov=False)
     elif optimizer_name == "AdamW":
         return optim.AdamW(model.parameters(), betas=(0.9, 0.999), eps=1e-8, lr=lr, weight_decay=1e-2)
-    elif optimizer_name == "AdamW":
-        return optim.NAdam(model.parameters())
     elif optimizer_name == "RAdam":
         return optim.RAdam(model.parameters(), lr=lr, weight_decay=1e-2, decoupled_weight_decay=True)
     elif optimizer_name == "NAdam":
